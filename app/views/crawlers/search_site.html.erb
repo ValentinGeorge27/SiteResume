@@ -1,0 +1,9 @@
+
+
+<%= form_tag search_site_crawlers_path, method: :post do %>
+    <%= prompt_text 'Insert Site' %>
+    <%= text_field_tag :site_name%>
+
+    <%= submit_tag 'Send' %>
+
+<% end %>
