@@ -1,4 +1,6 @@
 require 'open-uri'
+require 'uri'
+require 'cgi'
 
 class CrawlersController < ApplicationController
   before_action :set_crawler, only: [:show, :edit, :update, :destroy]
@@ -67,20 +69,33 @@ class CrawlersController < ApplicationController
     unless search_params.nil?
       page_name = search_params
 
-      page =  MetaInspector.new(page_name)
+      links = Set.new
+      redirect_links = Set.new
 
-      Anemone.crawl(page.url, :discard_page_bodies => true, :depth_limit=>3) do |anemone|
+      initial_page =  MetaInspector.new(page_name)
+
+      Anemone.crawl(initial_page.url, :allow_redirections => true, :verbose => false, :obey_robots_txt => true, :discard_page_bodies => true, :depth_limit=> 5) do |anemone|
         anemone.on_every_page do |page|
-          puts page.url
-          puts page.redirect_to
+
+          unless redirect_links.include? page.url
+            links << page.url
+          end
+
           unless page.redirect_to.nil?
-
-              Anemone.crawl(page.redirect_to, :discard_page_bodies => true, :depth_limit => 2) do |anemone_redirect|
-                anemone_redirect.on_every_page do |a_page|
-                  puts a_page.url
-                end
+            redirect_url = URI.parse(URI.encode(page.redirect_to.to_s)).to_s
+            if Crawler.check_domain_match(initial_page.url, redirect_url)
+              puts 'match'
+              unless links.include? redirect_url
+                redirect_links << redirect_url
+                  Anemone.crawl(redirect_url, :discard_page_bodies => true, :depth_limit => 3) do |anemone_redirect|
+                    anemone_redirect.on_every_page do |a_page|
+                      if links.include? a_page.url
+                        puts 'skip_redirect'
+                      end
+                    end
+                  end
               end
-
+            end
           end
         end
       end
@@ -93,6 +108,7 @@ class CrawlersController < ApplicationController
       end
 =end
 
+      redirect_to :back
     end
   end
 
