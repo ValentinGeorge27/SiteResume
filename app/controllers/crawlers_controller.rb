@@ -1,6 +1,8 @@
 require 'open-uri'
 require 'uri'
 require 'cgi'
+require 'matrix'
+require 'narray'
 
 class CrawlersController < ApplicationController
   before_action :set_crawler, only: [:show, :edit, :update, :destroy]
@@ -71,26 +73,40 @@ class CrawlersController < ApplicationController
 
       links = Set.new
       redirect_links = Set.new
-
+      docs = []
       initial_page =  MetaInspector.new(page_name)
+      flag = true
 
-      Anemone.crawl(initial_page.url, :allow_redirections => true, :verbose => false, :obey_robots_txt => true, :discard_page_bodies => true, :depth_limit=> 5) do |anemone|
+      Anemone.crawl(initial_page.url, :verbose => true, :obey_robots_txt => true, :depth_limit=> 5) do |anemone|
+=begin
+        anemone.after_crawl do |test|
+          test.each_value do |page|
+            puts page.url
+          end
+        end
+=end
         anemone.on_every_page do |page|
-
           unless redirect_links.include? page.url
+            if flag
+            puts page.url
+              doc = Crawler.add_page_to_docs(page,docs)
+              terms = Crawler.tf_idf_for_page(doc, docs)
+              puts terms
+              flag = false
+              break
+            end
             links << page.url
           end
 
           unless page.redirect_to.nil?
             redirect_url = URI.parse(URI.encode(page.redirect_to.to_s)).to_s
             if Crawler.check_domain_match(initial_page.url, redirect_url)
-              puts 'match'
               unless links.include? redirect_url
                 redirect_links << redirect_url
-                  Anemone.crawl(redirect_url, :discard_page_bodies => true, :depth_limit => 3) do |anemone_redirect|
+                  Anemone.crawl(redirect_url, :discard_page_bodies => true,:obey_robots_txt => true, :depth_limit => 5) do |anemone_redirect|
                     anemone_redirect.on_every_page do |a_page|
                       if links.include? a_page.url
-                        puts 'skip_redirect'
+                        # crawl
                       end
                     end
                   end
@@ -99,7 +115,6 @@ class CrawlersController < ApplicationController
           end
         end
       end
-
 =begin
       page.links.all.each do |p|
         open(p) do |f|
