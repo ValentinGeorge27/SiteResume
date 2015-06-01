@@ -73,7 +73,7 @@ class CrawlersController < ApplicationController
 
       links = Set.new
       redirect_links = Set.new
-      docs = []
+      docs = TfIdfSimilarity::Collection.new
       initial_page =  MetaInspector.new(page_name)
       flag = true
 
@@ -84,6 +84,7 @@ class CrawlersController < ApplicationController
             puts page.url
           end
         end
+http://datascience.stackexchange.com/questions/678/what-are-some-standard-ways-of-computing-the-distance-between-documents
 =end
         anemone.on_every_page do |page|
           unless redirect_links.include? page.url
@@ -91,9 +92,6 @@ class CrawlersController < ApplicationController
             puts page.url
               doc = Crawler.add_page_to_docs(page,docs)
               terms = Crawler.tf_idf_for_page(doc, docs)
-              puts terms
-              flag = false
-              break
             end
             links << page.url
           end

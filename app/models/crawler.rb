@@ -3,7 +3,6 @@ require 'unicode_utils'
 
 class Crawler < ActiveRecord::Base
 
-
   def self.check_domain_match(url1, url2)
     url1 = 'http://' + url1 unless url1.match(/^(http|https):\/\//)
     url2 = 'http://' + url2 unless url2.match(/^(http|https):\/\//)
@@ -28,7 +27,6 @@ class Crawler < ActiveRecord::Base
     key_words = words.select { |word| !tokens.include?(word) }
 
     page_for_doc = key_words.join(' ')
-    puts page_for_doc
     doc = TfIdfSimilarity::Document.new(page_for_doc)
     docs << doc
     doc

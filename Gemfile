@@ -26,6 +26,10 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 gem 'metainspector'
 gem 'anemone'
 
+gem 'rspec'
+gem 'fakeweb'
+gem 'redis'
+
 
 gem 'tf_idf'
 gem 'tf-idf-similarity'
