@@ -77,7 +77,7 @@ class CrawlersController < ApplicationController
       initial_page =  MetaInspector.new(page_name)
       flag = true
 
-      Anemone.crawl(initial_page.url, :thread => 4, :verbose => true, :obey_robots_txt => true, :depth_limit=> 5) do |anemone|
+      Anemone.crawl(initial_page.url, :verbose => true, :obey_robots_txt => true, :depth_limit=> 5) do |anemone|
         anemone.storage = Anemone::Storage.Redis
 =begin
         anemone.after_crawl do |test|
@@ -88,7 +88,9 @@ class CrawlersController < ApplicationController
 http://datascience.stackexchange.com/questions/678/what-are-some-standard-ways-of-computing-the-distance-between-documents
 =end
         anemone.on_every_page do |page|
-          unless redirect_links.include? page.url
+          if page.code.to_i >= 200 && page.code.to_i < 400
+
+            unless redirect_links.include? page.url
 =begin
             if flag
             puts page.url
@@ -116,6 +118,7 @@ http://datascience.stackexchange.com/questions/678/what-are-some-standard-ways-o
             end
           end
         end
+        end
       end
 =begin
       page.links.all.each do |p|
@@ -127,7 +130,8 @@ http://datascience.stackexchange.com/questions/678/what-are-some-standard-ways-o
 
       redirect_to :back
     end
-  end
+    end
+
 
   private
     # Use callbacks to share common setup or constraints between actions.
