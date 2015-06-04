@@ -28,11 +28,17 @@ gem 'anemone'
 
 gem 'rspec'
 gem 'fakeweb'
-gem 'redis'
+gem 'redis-rails'
 
 
 gem 'tf_idf'
 gem 'tf-idf-similarity'
+
+=begin
+gem 'gsl', :git => 'git://github.com/siefca/rb-gsl'
+gem 'similarity'
+=end
+
 gem 'unicode_utils'
 gem 'narray'
 # Use ActiveModel has_secure_password

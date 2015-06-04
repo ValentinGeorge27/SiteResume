@@ -139,6 +139,22 @@ GEM
     rake (10.4.2)
     rdoc (4.2.0)
     redis (3.2.1)
+    redis-actionpack (4.0.0)
+      actionpack (~> 4)
+      redis-rack (~> 1.5.0)
+      redis-store (~> 1.1.0)
+    redis-activesupport (4.0.0)
+      activesupport (~> 4)
+      redis-store (~> 1.1.0)
+    redis-rack (1.5.0)
+      rack (~> 1.5)
+      redis-store (~> 1.1.0)
+    redis-rails (4.0.0)
+      redis-actionpack (~> 4)
+      redis-activesupport (~> 4)
+      redis-store (~> 1.1.0)
+    redis-store (1.1.4)
+      redis (>= 2.2)
     robotex (1.0.0)
     rspec (3.2.0)
       rspec-core (~> 3.2.0)
@@ -208,7 +224,7 @@ DEPENDENCIES
   public_suffix
   rails (= 4.2.0)
   rails_12factor
-  redis
+  redis-rails
   rspec
   sass-rails (~> 5.0)
   sdoc (~> 0.4.0)
