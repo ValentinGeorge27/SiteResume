@@ -24,7 +24,7 @@ gem 'jbuilder', '~> 2.0'
 gem 'sdoc', '~> 0.4.0', group: :doc
 
 gem 'metainspector'
-gem 'anemone'
+gem 'anemone', :git => 'git://github.com/ValentinGeorge27/anemone'
 
 gem 'rspec'
 gem 'fakeweb'

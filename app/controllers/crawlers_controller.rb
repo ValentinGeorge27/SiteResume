@@ -77,7 +77,7 @@ class CrawlersController < ApplicationController
       initial_page =  MetaInspector.new(page_name)
       flag = true
 
-      Anemone.crawl(initial_page.url, :verbose => true, :obey_robots_txt => true, :depth_limit=> 5) do |anemone|
+      Anemone.crawl(initial_page.url, :verbose => true, :obey_robots_txt => true, :depth_limit=> 5, :crawl_subdomains => true) do |anemone|
         anemone.storage = Anemone::Storage.Redis
 =begin
         anemone.after_crawl do |test|
@@ -102,6 +102,7 @@ http://datascience.stackexchange.com/questions/678/what-are-some-standard-ways-o
             links << page.url
           end
 
+=begin
           unless page.redirect_to.nil?
             redirect_url = URI.parse(URI.encode(page.redirect_to.to_s)).to_s
             if Crawler.check_domain_match(initial_page.url, redirect_url)
@@ -117,6 +118,7 @@ http://datascience.stackexchange.com/questions/678/what-are-some-standard-ways-o
               end
             end
           end
+=end
         end
         end
       end
