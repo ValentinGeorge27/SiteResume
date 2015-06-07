@@ -77,8 +77,8 @@ class CrawlersController < ApplicationController
       initial_page =  MetaInspector.new(page_name)
       flag = true
 
-      Anemone.crawl(initial_page.url, :verbose => true, :obey_robots_txt => true, :depth_limit=> 5, :crawl_subdomains => true) do |anemone|
-        anemone.storage = Anemone::Storage.Redis
+      Anemone.crawl(initial_page.url, :verbose => true, :depth_limit=> 5, :skip_query_strings => true, :read_timeout => 10, :crawl_subdomains => true) do |anemone|
+
 =begin
         anemone.after_crawl do |test|
           test.each_value do |page|
@@ -87,6 +87,10 @@ class CrawlersController < ApplicationController
         end
 http://datascience.stackexchange.com/questions/678/what-are-some-standard-ways-of-computing-the-distance-between-documents
 =end
+        ext = %w(flv swf png jpg gif asx zip rar tar 7z gz jar js css dtd xsd ico raw mp3 mp4 wav wmv ape aac ac3 wma aiff mpg mpeg avi mov ogg mkv mka asx asf mp2 m1v m3u f4v pdf doc xls ppt pps bin exe rss xml)
+
+        anemone.skip_links_like /\.#{ext.join('|')}$/
+
         anemone.on_every_page do |page|
           if page.code.to_i >= 200 && page.code.to_i < 400
 
@@ -101,34 +105,9 @@ http://datascience.stackexchange.com/questions/678/what-are-some-standard-ways-o
 =end
             links << page.url
           end
-
-=begin
-          unless page.redirect_to.nil?
-            redirect_url = URI.parse(URI.encode(page.redirect_to.to_s)).to_s
-            if Crawler.check_domain_match(initial_page.url, redirect_url)
-              unless links.include? redirect_url
-                redirect_links << redirect_url
-                  Anemone.crawl(redirect_url, :discard_page_bodies => true,:obey_robots_txt => true, :depth_limit => 5) do |anemone_redirect|
-                    anemone_redirect.on_every_page do |a_page|
-                      if links.include? a_page.url
-                        # crawl
-                      end
-                    end
-                  end
-              end
-            end
-          end
-=end
         end
         end
       end
-=begin
-      page.links.all.each do |p|
-        open(p) do |f|
-          puts f.read
-        end
-      end
-=end
 
       redirect_to :back
     end
