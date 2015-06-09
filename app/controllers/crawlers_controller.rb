@@ -71,44 +71,33 @@ class CrawlersController < ApplicationController
     unless search_params.nil?
       page_name = search_params
 
-      links = Set.new
-      redirect_links = Set.new
       docs = []
       initial_page =  MetaInspector.new(page_name)
       flag = true
+      ext = %w(flv swf png jpg gif asx zip rar tar 7z gz jar js css dtd xsd ico raw mp3 mp4 wav wmv ape aac ac3 wma aiff mpg mpeg avi mov ogg mkv mka asx asf mp2 m1v m3u f4v pdf doc xls ppt pps bin exe rss xml)
 
-      Anemone.crawl(initial_page.url, :verbose => true, :depth_limit=> 5, :skip_query_strings => true, :read_timeout => 10, :crawl_subdomains => true) do |anemone|
 
-=begin
-        anemone.after_crawl do |test|
-          test.each_value do |page|
-            puts page.url
-          end
-        end
-http://datascience.stackexchange.com/questions/678/what-are-some-standard-ways-of-computing-the-distance-between-documents
-=end
-        ext = %w(flv swf png jpg gif asx zip rar tar 7z gz jar js css dtd xsd ico raw mp3 mp4 wav wmv ape aac ac3 wma aiff mpg mpeg avi mov ogg mkv mka asx asf mp2 m1v m3u f4v pdf doc xls ppt pps bin exe rss xml)
+      Anemone.crawl(initial_page.url,:max_page_queue_size => 100, :verbose => true, :depth_limit=> 5, :skip_query_strings => true, :read_timeout => 10, :crawl_subdomains => true) do |anemone|
 
         anemone.skip_links_like /\.#{ext.join('|')}$/
 
         anemone.on_every_page do |page|
           if page.code.to_i >= 200 && page.code.to_i < 400
 
-            unless redirect_links.include? page.url
-=begin
-            if flag
-            puts page.url
+            Thread.new do
               doc = Crawler.add_page_to_docs(page,docs)
+=begin
               terms = Crawler.tf_idf_for_page(doc, docs)
               puts terms
-            end
 =end
-            links << page.url
+            end
+
           end
         end
-        end
       end
-
+      puts 'we are here ' + Time.now
+      model = TfIdfSimilarity::TfIdfModel.new(docs)
+      puts 'we finished the model ' +  Time.now
       redirect_to :back
     end
     end

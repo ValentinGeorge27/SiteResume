@@ -31,7 +31,6 @@ gem 'fakeweb'
 gem 'redis-rails'
 
 
-gem 'tf_idf'
 gem 'tf-idf-similarity'
 
 =begin
