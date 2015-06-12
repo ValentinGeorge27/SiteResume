@@ -3,6 +3,7 @@ require 'uri'
 require 'cgi'
 require 'narray'
 require 'tf-idf-similarity'
+require 'matrix'
 
 class CrawlersController < ApplicationController
   before_action :set_crawler, only: [:show, :edit, :update, :destroy]
@@ -72,8 +73,11 @@ class CrawlersController < ApplicationController
       page_name = search_params
 
       docs = []
+      models = []
       initial_page =  MetaInspector.new(page_name)
       flag = true
+      links = Set.new
+      count = 0
       ext = %w(flv swf png jpg gif asx zip rar tar 7z gz jar js css dtd xsd ico raw mp3 mp4 wav wmv ape aac ac3 wma aiff mpg mpeg avi mov ogg mkv mka asx asf mp2 m1v m3u f4v pdf doc xls ppt pps bin exe rss xml)
 
 
@@ -83,21 +87,20 @@ class CrawlersController < ApplicationController
 
         anemone.on_every_page do |page|
           if page.code.to_i >= 200 && page.code.to_i < 400
-
-            Thread.new do
-              doc = Crawler.add_page_to_docs(page,docs)
+            unless links.include? page.url
+                  doc = Crawler.add_page_to_docs(page,docs, page_name)
+                  unless doc.blank?
 =begin
-              terms = Crawler.tf_idf_for_page(doc, docs)
-              puts terms
+                    model = Crawler.update_models(docs, models)
 =end
+                    terms = Crawler.tf_idf_for_page(doc, docs, models)
+                    puts terms
+                  end
+              links << page.url
             end
-
           end
         end
       end
-      puts 'we are here ' + Time.now
-      model = TfIdfSimilarity::TfIdfModel.new(docs)
-      puts 'we finished the model ' +  Time.now
       redirect_to :back
     end
     end
