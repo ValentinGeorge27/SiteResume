@@ -30,6 +30,9 @@ gem 'rspec'
 gem 'fakeweb'
 gem 'redis-rails'
 
+gem 'htmlentities'
+gem 'loofah'
+
 
 gem 'tf-idf-similarity'
 

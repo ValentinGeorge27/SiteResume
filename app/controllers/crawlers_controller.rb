@@ -78,29 +78,28 @@ class CrawlersController < ApplicationController
       flag = true
       links = Set.new
       count = 0
+      terms_sum = {}
       ext = %w(flv swf png jpg gif asx zip rar tar 7z gz jar js css dtd xsd ico raw mp3 mp4 wav wmv ape aac ac3 wma aiff mpg mpeg avi mov ogg mkv mka asx asf mp2 m1v m3u f4v pdf doc xls ppt pps bin exe rss xml)
 
-
-      Anemone.crawl(initial_page.url,:max_page_queue_size => 100, :verbose => true, :depth_limit=> 5, :skip_query_strings => true, :read_timeout => 10, :crawl_subdomains => true) do |anemone|
-
+      Anemone.crawl(initial_page.url,:max_page_queue_size => 100, :depth_limit=> 5, :skip_query_strings => true, :read_timeout => 10, :crawl_subdomains => true) do |anemone|
         anemone.skip_links_like /\.#{ext.join('|')}$/
-
         anemone.on_every_page do |page|
           if page.code.to_i >= 200 && page.code.to_i < 400
             unless links.include? page.url
                   doc = Crawler.add_page_to_docs(page,docs, page_name)
                   unless doc.blank?
-=begin
-                    model = Crawler.update_models(docs, models)
-=end
-                    terms = Crawler.tf_idf_for_page(doc, docs, models)
+                    models = Crawler.update_models(docs, models)
+                    terms = Crawler.tf_idf_for_page(doc, models)
                     puts terms
+                    terms_sum = Crawler.add_to_terms_sum(terms, terms_sum)
                   end
               links << page.url
             end
           end
+
         end
       end
+      puts terms_sum.sort_by {|k,v| v}.reverse
       redirect_to :back
     end
     end
