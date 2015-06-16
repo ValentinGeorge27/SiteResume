@@ -3,6 +3,8 @@ Rails.application.routes.draw do
 
   root :to => 'crawlers#search_site'
 
+  get 'browser_data' => 'crawler#send_data_to_browser'
+
   resources :crawlers do
     collection do
       post :search_site

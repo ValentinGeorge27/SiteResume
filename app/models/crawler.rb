@@ -12,16 +12,15 @@ class Crawler < ActiveRecord::Base
     page_for_doc.squish!
     page_for_doc.gsub!(/\n\n+/, "\n")
 
-    tokens = %w(asa da cu nu te si va ce cum unde o un ala ul urile a de la cu peste langa sub catre prin contra in pe fara pentru din asemenea )
+    tokens = %w(la te asa da cu nu te si va ce cum unde o un ala ul urile a de la cu peste langa sub catre prin contra in pe fara pentru din asemenea )
     lista_pronume = %w(noastra toate eu tu el ea noi voi ei ele mei sau sa dansul acesta asta aceea același cine ce care cât care ceea cine unul unii cineva altul oricare vreunul)
 
-    tokens = tokens + lista_pronume
-    tokens = tokens.uniq
     page_name_terms = page_name.split('.')
 
     words = page_for_doc.scan(/\w+/)
     key_words = words.select { |word| !STOP_WORDS_EN.include?(word) }
     key_words = key_words.select { |word| !tokens.include?(word) }
+    key_words = key_words.select { |word| !lista_pronume.include?(word) }
     key_words = key_words.select { |word| !page_name_terms.include?(word) }
     key_words = key_words.select { |word| word.length > 1 }
 
@@ -56,15 +55,23 @@ class Crawler < ActiveRecord::Base
     models
   end
 
-  def self.tf_idf_for_page(doc, models)
-    #model = TfIdfSimilarity::TfIdfModel.new(docs, :library => :narray)
-
+  def self.tf_idf_for_page_v2(doc,models)
     tfidf_by_term = {}
     models.each do |model|
       doc.terms.each do |term|
         tfidf_by_term[term] = model.tfidf(doc, term)
       end
     end
+    tfidf_by_term.to_hash
+  end
+
+  def self.tf_idf_for_page(doc,docs, models)
+    model = TfIdfSimilarity::TfIdfModel.new(docs, :library => :narray)
+
+    tfidf_by_term = {}
+      doc.terms.each do |term|
+        tfidf_by_term[term] = model.tfidf(doc, term)
+      end
     tfidf_by_term.to_hash
   end
 

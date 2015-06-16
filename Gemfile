@@ -48,6 +48,9 @@ gem 'narray'
 
 gem 'public_suffix'
 
+gem 'thin'
+gem 'puma'
+
 # Use Unicorn as the app server
 # gem 'unicorn'
 

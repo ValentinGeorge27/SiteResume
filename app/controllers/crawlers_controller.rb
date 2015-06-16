@@ -6,7 +6,7 @@ require 'tf-idf-similarity'
 require 'matrix'
 
 class CrawlersController < ApplicationController
-  before_action :set_crawler, only: [:show, :edit, :update, :destroy]
+  include ActionController::Live
 
   # GET /crawlers
   # GET /crawlers.json
@@ -69,6 +69,15 @@ class CrawlersController < ApplicationController
   end
 
   def search_site
+
+=begin
+    http://www.sitepoint.com/streaming-with-rails-4/
+http://dius.com.au/2014/03/21/server-sent-events-rails-4-angularjs/
+http://blogs.sequoiainc.com/blogs/easy-streams-with-rails-4-actioncontroller-live
+http://www.sitepoint.com/mini-chat-rails-server-sent-events/
+http://www.sitepoint.com/mini-chat-rails-server-sent-events/
+=end
+
     unless search_params.nil?
       page_name = search_params
 
@@ -81,28 +90,38 @@ class CrawlersController < ApplicationController
       terms_sum = {}
       ext = %w(flv swf png jpg gif asx zip rar tar 7z gz jar js css dtd xsd ico raw mp3 mp4 wav wmv ape aac ac3 wma aiff mpg mpeg avi mov ogg mkv mka asx asf mp2 m1v m3u f4v pdf doc xls ppt pps bin exe rss xml)
 
-      Anemone.crawl(initial_page.url,:max_page_queue_size => 100, :depth_limit=> 5, :skip_query_strings => true, :read_timeout => 10, :crawl_subdomains => true) do |anemone|
+      Anemone.crawl(initial_page.url,:max_page_queue_size => 100, :obey_robots_txt => true,  :depth_limit=> 5, :skip_query_strings => true, :read_timeout => 10, :crawl_subdomains => true) do |anemone|
         anemone.skip_links_like /\.#{ext.join('|')}$/
         anemone.on_every_page do |page|
           if page.code.to_i >= 200 && page.code.to_i < 400
             unless links.include? page.url
                   doc = Crawler.add_page_to_docs(page,docs, page_name)
                   unless doc.blank?
-                    models = Crawler.update_models(docs, models)
-                    terms = Crawler.tf_idf_for_page(doc, models)
+                    #models = Crawler.update_models(docs, models)
+                    terms = Crawler.tf_idf_for_page(doc,docs, models)
                     puts terms
                     terms_sum = Crawler.add_to_terms_sum(terms, terms_sum)
+
                   end
+                  count += 1
               links << page.url
             end
           end
-
         end
       end
       puts terms_sum.sort_by {|k,v| v}.reverse
-      redirect_to :back
     end
-    end
+    #render nothing: true
+  end
+
+  def send_data_to_browser
+    response.headers['Content-Type'] = 'text/event-stream'
+    sse = SSE.new(response.stream, retry: 300)
+      sse.write "hello world\n"
+      sleep 1
+    ensure
+      sse.close
+  end
 
 
   private
