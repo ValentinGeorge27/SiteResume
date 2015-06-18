@@ -53,6 +53,7 @@ gem 'pusher'
 gem 'puma'
 
 gem 'websocket-rails'
+gem 'underscore-rails'
 
 # Use Unicorn as the app server
 # gem 'unicorn'

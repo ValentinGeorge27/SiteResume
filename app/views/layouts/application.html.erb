@@ -17,10 +17,14 @@
 
       var pusher = new Pusher('bf3efe4f2a538719f902');
       var channel = pusher.subscribe('test_channel');
+      var object_counter = {};
       channel.bind('my_event', function(data) {
+          var object = data.message;
+          var extend = _.extend(object_counter, object);
           var key = Object.keys(data.message).map(function(key){return key});
           var value = Object.keys(data.message).map(function(key){return data.message[key]});
-          $("#progress").prepend(key + " " +value + "<br>");
+
+          $("#progress").prepend(object + "<br>");
       });
   </script>
 

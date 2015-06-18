@@ -225,6 +225,7 @@ GEM
     uglifier (2.7.1)
       execjs (>= 0.3.0)
       json (>= 1.8.0)
+    underscore-rails (1.8.3)
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.7.1)
@@ -275,6 +276,7 @@ DEPENDENCIES
   tf-idf-similarity
   turbolinks
   uglifier (>= 1.3.0)
+  underscore-rails
   unicode_utils
   web-console (~> 2.0)
   websocket-rails
