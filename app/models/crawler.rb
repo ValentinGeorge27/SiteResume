@@ -12,8 +12,8 @@ class Crawler < ActiveRecord::Base
     page_for_doc.squish!
     page_for_doc.gsub!(/\n\n+/, "\n")
 
-    tokens = %w(la te asa da cu nu te si va ce cum unde o un ala ul urile a de la cu peste langa sub catre prin contra in pe fara pentru din asemenea )
-    lista_pronume = %w(noastra toate eu tu el ea noi voi ei ele mei sau sa dansul acesta asta aceea același cine ce care cât care ceea cine unul unii cineva altul oricare vreunul)
+    tokens = %w(la te ron asa da cu nu te si va ce cum unde o un ala ul urile a de la cu peste langa sub catre prin contra in pe fara pentru din asemenea )
+    lista_pronume = %w(asa noastra toate tau eu tu el ea noi voi ei ele mei sau sa dansul acesta asta aceea același cine ce care cât care ceea cine unul unii cineva altul oricare vreunul)
 
     page_name_terms = page_name.split('.')
 

@@ -5,6 +5,25 @@
   <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
   <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
   <%= csrf_meta_tags %>
+
+  <script src="//js.pusher.com/2.2/pusher.min.js"></script>
+  <script>
+      // Enable pusher logging - don't include this in production
+      Pusher.log = function(message) {
+          if (window.console && window.console.log) {
+              window.console.log(message);
+          }
+      };
+
+      var pusher = new Pusher('bf3efe4f2a538719f902');
+      var channel = pusher.subscribe('test_channel');
+      channel.bind('my_event', function(data) {
+          var key = Object.keys(data.message).map(function(key){return key});
+          var value = Object.keys(data.message).map(function(key){return data.message[key]});
+          $("#progress").prepend(key + " " +value + "<br>");
+      });
+  </script>
+
 </head>
 <body>
 

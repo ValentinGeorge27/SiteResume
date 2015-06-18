@@ -6,6 +6,8 @@
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mysql://127.0.0.1/site_resume_development</jdbc-url>
+      <user-name>root</user-name>
+      <user-password>dfeddfcfdfc5dfd8dfcddfcfdf98df9d</user-password>
       <driver-properties>
         <property name="zeroDateTimeBehavior" value="convertToNull" />
         <property name="tinyInt1isBit" value="false" />
@@ -20,6 +22,8 @@
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mysql://127.0.0.1/site_resume_production</jdbc-url>
+      <user-name>root</user-name>
+      <user-password>dfeddfcfdfc5dfd8dfcddfcfdf98df9d</user-password>
       <driver-properties>
         <property name="zeroDateTimeBehavior" value="convertToNull" />
         <property name="tinyInt1isBit" value="false" />
@@ -34,6 +38,8 @@
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mysql://127.0.0.1/site_resume_test</jdbc-url>
+      <user-name>root</user-name>
+      <user-password>dfeddfcfdfc5dfd8dfcddfcfdf98df9d</user-password>
       <driver-properties>
         <property name="zeroDateTimeBehavior" value="convertToNull" />
         <property name="tinyInt1isBit" value="false" />
@@ -45,3 +51,4 @@
     </data-source>
   </component>
 </project>
+

@@ -3,12 +3,27 @@
     <%= prompt_text 'Insert Site' %>
     <%= text_field_tag :site_name%>
 
-    <%= submit_tag 'Send' %>
+    <%= submit_tag 'Send', id: 'test' %>
 
 <% end %>
 <br><br>
 
-<div>
-  Response div
+<div id="progress">
 
 </div>
+
+<!--<script type="text/javascript">
+    jQuery('#test').click(function() {
+        setTimeout(function() {
+            var source = new EventSource('/crawlers/search_site');
+
+            function eventLogger(event){
+                $("#progress").prepend(event.data + "<br>");
+
+                if (event.data == 'stream_end') { source.close() };
+            }
+
+            source.onmessage = eventLogger;
+        }, 10);
+    });
+</script>-->

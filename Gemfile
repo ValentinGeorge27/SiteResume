@@ -1,5 +1,4 @@
 source 'https://rubygems.org'
-ruby '2.2.1'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.2.0'
@@ -48,8 +47,12 @@ gem 'narray'
 
 gem 'public_suffix'
 
-gem 'thin'
+
+gem 'pusher'
+
 gem 'puma'
+
+gem 'websocket-rails'
 
 # Use Unicorn as the app server
 # gem 'unicorn'
