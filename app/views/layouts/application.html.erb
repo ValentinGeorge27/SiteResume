@@ -11,7 +11,7 @@
       // Enable pusher logging - don't include this in production
       Pusher.log = function(message) {
           if (window.console && window.console.log) {
-              window.console.log(message);
+             /*window.console.log(message);*/
           }
       };
 
@@ -20,11 +20,24 @@
       var object_counter = {};
       channel.bind('my_event', function(data) {
           var object = data.message;
-          var extend = _.extend(object_counter, object);
-          var key = Object.keys(data.message).map(function(key){return key});
+
+          for (var global_key in object_counter) {
+              for( var object_key in object ) {
+                  if(global_key==object_key) {
+                      object_counter[global_key] += object[object_key];
+                      delete object[object_key];
+                  }
+              }
+          }
+
+          _.extend(object_counter, object);
+
+          var keysSorted = Object.keys(object_counter).sort(function(a,b){return object_counter[a]-object_counter[b]});
+          window.console.log(object_counter);
+          /*var key = Object.keys(data.message).map(function(key){return key});
           var value = Object.keys(data.message).map(function(key){return data.message[key]});
 
-          $("#progress").prepend(object + "<br>");
+          $("#progress").prepend(object + "<br>");*/
       });
   </script>
 

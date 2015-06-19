@@ -99,13 +99,14 @@ class CrawlersController < ApplicationController
                         message: terms
                     })
                     #send_data_to_browser
-                    #terms_sum = Crawler.add_to_terms_sum(terms, terms_sum)
+                    terms_sum = Crawler.add_to_terms_sum(terms, terms_sum)
                   end
               links << page.url
             end
           end
         end
       end
+      puts terms_sum.sort_by {|k,v| v}.reverse
     end
   end
 
