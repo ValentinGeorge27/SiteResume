@@ -9,6 +9,7 @@ development:    # <---
   database: site_resume_development
   encoding: utf8
   host: localhost
+  pool: 16
   username: root
   password: George27
 
@@ -17,6 +18,7 @@ production:    # <---
   database: site_resume_production
   encoding: utf8
   host: localhost
+  pool: 16
   username: root
   password: George27
 
@@ -25,6 +27,7 @@ test:    # <---
   database: site_resume_test
   encoding: utf8
   host: localhost
+  pool: 16
   username: root
   password: George27
 # Warning: The database defined as "test" will be erased and

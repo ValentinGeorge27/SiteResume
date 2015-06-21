@@ -11,11 +11,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150419204710) do
+ActiveRecord::Schema.define(version: 20150621052250) do
 
   create_table "crawlers", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
+    t.string   "url_name",   limit: 255
+    t.text     "terms",      limit: 65535
+    t.datetime "start_time"
+    t.datetime "end_time"
+    t.string   "duration",   limit: 255
   end
 
 end

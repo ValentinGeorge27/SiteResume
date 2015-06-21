@@ -1,5 +1,7 @@
 require 'uri/http'
 require 'unicode_utils'
+require 'narray'
+require 'tf-idf-similarity'
 
 class Crawler < ActiveRecord::Base
 
@@ -12,17 +14,12 @@ class Crawler < ActiveRecord::Base
     page_for_doc.squish!
     page_for_doc.gsub!(/\n\n+/, "\n")
 
-    tokens = %w(la te asa da cu nu te si va ce cum unde o un ala ul urile a de la cu peste langa sub catre prin contra in pe fara pentru din asemenea )
-    lista_pronume = %w(noastra toate eu tu el ea noi voi ei ele mei sau sa dansul acesta asta aceea același cine ce care cât care ceea cine unul unii cineva altul oricare vreunul)
+    tokens = %w(ai la te ron asa da cu nu te si va ce cum unde o un ala ul urile a de la cu peste langa sub catre prin contra in pe fara pentru din asemenea asa noastra toate tau eu tu el ea noi voi ei ele mei sau sa acesta asta aceea același cine ce care cât care ceea cine unul unii cineva altul oricare vreunul)
 
     page_name_terms = page_name.split('.')
 
     words = page_for_doc.scan(/\w+/)
-    key_words = words.select { |word| !STOP_WORDS_EN.include?(word) }
-    key_words = key_words.select { |word| !tokens.include?(word) }
-    key_words = key_words.select { |word| !lista_pronume.include?(word) }
-    key_words = key_words.select { |word| !page_name_terms.include?(word) }
-    key_words = key_words.select { |word| word.length > 1 }
+    key_words = words.select { |word| !STOP_WORDS_EN.include?(word) and !tokens.include?(word) and !page_name_terms.include?(word) and word.length > 1 }
 
     page_for_doc = key_words.join(' ')
 
@@ -36,41 +33,64 @@ class Crawler < ActiveRecord::Base
   end
 
   def self.update_models(docs, models)
-    model = models.last
+    model = nil
+    if models.blank?
+      model = nil
+    else
+      model = models.last
+    end
 
     if model.nil?
-      models << TfIdfSimilarity::TfIdfModel.new(docs, :library => :narray)
+      model_new = TfIdfSimilarity::TfIdfModel.new(docs, :library => :narray)
+      models << model_new
     else
       if docs.length <= 100
         model = TfIdfSimilarity::TfIdfModel.new(docs, :library => :narray)
+        model
       end
 
       if docs.length.eql? 100
         last_doc = docs.last
-        docs = []
-        docs << last_doc
-        models << TfIdfSimilarity::TfIdfModel.new(docs, :library => :narray)
+        docs_new = []
+        docs_new << last_doc
+        model = TfIdfSimilarity::TfIdfModel.new(docs_new, :library => :narray)
+        models << model
       end
     end
     models
   end
 
   def self.tf_idf_for_page_v2(doc,models)
+    tfidf_by_term_sum = []
     tfidf_by_term = {}
     models.each do |model|
       doc.terms.each do |term|
         tfidf_by_term[term] = model.tfidf(doc, term)
       end
+      tfidf_by_term_sum << tfidf_by_term
     end
-    tfidf_by_term.to_hash
+    tf_idf_final = tf_idf_for_models_results(tfidf_by_term_sum)
+    tf_idf_final.to_hash
   end
 
-  def self.tf_idf_for_page(doc,docs, models)
+  def self.tf_idf_for_models_results(terms)
+    term_sum = {}
+    terms.each do |term|
+      term_sum = add_to_terms_sum(term, term_sum)
+    end
+    tfidf_by_term_final = term_sum.each { |k,v| term_sum[k] = v/terms.length }
+
+    tfidf_by_term_final.to_hash
+  end
+
+  def self.tf_idf_for_page(doc,docs)
     model = TfIdfSimilarity::TfIdfModel.new(docs, :library => :narray)
 
     tfidf_by_term = {}
       doc.terms.each do |term|
-        tfidf_by_term[term] = model.tfidf(doc, term)
+        tf = model.tf(doc, term)
+        idf = model.idf(term)
+        tfidf_by_term[term] = tf * idf
       end
     tfidf_by_term.to_hash
   end
