@@ -84,6 +84,7 @@ class CrawlersController < ApplicationController
         ext = %w(flv swf png jpg gif asx zip rar tar 7z gz jar js css dtd xsd ico raw mp3 mp4 wav wmv ape aac ac3 wma aiff mpg mpeg avi mov ogg mkv mka asx asf mp2 m1v m3u f4v pdf doc xls ppt pps bin exe rss xml)
 
         start_time = Time.zone.now
+
       Anemone.crawl(initial_page.url,:max_page_queue_size => 1000, :obey_robots_txt => true, :delay => 2, :depth_limit=> 5, :skip_query_strings => true, :read_timeout => 10, :crawl_subdomains => true) do |anemone|
         anemone.skip_links_like /\.#{ext.join('|')}$/
         links << initial_page.url
@@ -109,10 +110,10 @@ class CrawlersController < ApplicationController
         end
         end_time = Time.zone.now
         duration = end_time - start_time
-        @crawler = Crawler.create(url_name: initial_page.url.to_s, terms: terms_sum, start_time: start_time, end_time: end_time, duration: duration)
+        #@crawler = Crawler.create(url_name: initial_page.url.to_s, terms: terms_sum, start_time: start_time, end_time: end_time, duration: duration)
       end
       else
-        terms_sum = @crawler.terms.to_h
+        #terms_sum = @crawler.terms.to_h
       end
     end
   end

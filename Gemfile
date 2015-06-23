@@ -34,6 +34,8 @@ gem 'redis-rails'
 gem 'htmlentities'
 gem 'loofah'
 
+gem "jqcloud-rails"
+
 gem 'tf_idf'
 gem 'tf-idf-similarity'
 
