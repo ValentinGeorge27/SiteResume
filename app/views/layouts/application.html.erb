@@ -7,6 +7,8 @@
   <%= csrf_meta_tags %>
 
   <script src="//js.pusher.com/2.2/pusher.min.js"></script>
+
+
   <script>
       // Enable pusher logging - don't include this in production
       Pusher.log = function(message) {
@@ -18,34 +20,82 @@
       var pusher = new Pusher('bf3efe4f2a538719f902');
       var channel = pusher.subscribe('test_channel');
       var object_counter = {};
+      var flag=1;
+
+
+
       channel.bind('my_event', function(data) {
           var object = data.message;
+          var dup_object = [];
 
           for (var global_key in object_counter) {
               for( var object_key in object ) {
                   if(global_key==object_key) {
                       object_counter[global_key] += object[object_key];
+                      dup_object[object_key] = object[object_key];
                       delete object[object_key];
                   }
               }
           }
 
           _.extend(object_counter, object);
+
+          var cloudGroup = d3.select("#wordcloud").select("svg")
+                  .attr("width", 600)
+                  .attr("height", 600)
+                  .append("g")
+                  .attr("transform", "translate(150,150)");
+
           var arr = sortObject(object_counter);
-          arr = arr.slice(0,50);
-          /*var array=[];
-          for(var a in object_counter){
-              array.push([a,object_counter[a]])
-          }
-          array.sort(function(a,b){return a[1] - b[1]});
-          array.reverse();
-          array = array.slice(0,10);
-          console.log(array);
-          */
-          $('#progress').html('');
-          $('#progress').jQCloud(arr, {
-              autoResize: true
-          });
+          arr = arr.slice(0,10);
+          var duration = 750; // duration for transitions
+          var fill = d3.scale.category20();
+          var layout;
+          var wordScale=d3.scale.linear().domain([0,75]).range([10,100]);
+
+          console.log(arr);
+
+          layout = d3.layout.cloud()
+                      .size([600, 600])
+                      .words(arr.map(function(d) {
+                          return {text: d.text, size: d.weight };
+                      }))
+                      .padding(1)
+                      .rotate(function() { return 0; })
+                      .font("Impact")
+                      .fontSize(function(d) { return wordScale(d.size); })
+                      .on("end", draw);
+              layout.start();
+
+              function draw(words) {
+                 var cloudData = cloudGroup
+                          .selectAll("text")
+                          .data(words);
+
+
+                  cloudData.enter().append("text")
+                          .style("font-size", "0px")
+                          .style("font-family", "Impact")
+                          .style("fill", function(d) { return fill(d.text); })
+                          .attr("text-anchor", "middle")
+                          .attr("transform", function(d) {
+                              return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+                          })
+                          .text(function(d) { return d.text; })
+                          .transition().duration(duration).style("font-size", function(d) { return d.size + "px"; });
+
+
+                  // This with updating existing data
+                  cloudData.transition().duration(duration).style("font-size", "0px")
+                          .remove()
+                          .style("font-size", "0px")
+                          .attr("transform", function(d) {
+                              return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+                          })
+                          .text(function(d) { return d.text; })
+                          .transition().duration(duration).style("font-size", function(d) { return d.size + "px"; });
+                  }
+
       });
       function sortObject(obj) {
           var arr = [];

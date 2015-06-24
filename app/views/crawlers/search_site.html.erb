@@ -8,22 +8,6 @@
 <% end %>
 <br><br>
 
-<div id="progress" style="width: 600px; height: 500px;">
-
+<div id="wordcloud" >
+<svg></svg>
 </div>
-
-<!--<script type="text/javascript">
-    jQuery('#test').click(function() {
-        setTimeout(function() {
-            var source = new EventSource('/crawlers/search_site');
-
-            function eventLogger(event){
-                $("#progress").prepend(event.data + "<br>");
-
-                if (event.data == 'stream_end') { source.close() };
-            }
-
-            source.onmessage = eventLogger;
-        }, 10);
-    });
-</script>-->
