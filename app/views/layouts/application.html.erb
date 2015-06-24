@@ -20,19 +20,14 @@
       var pusher = new Pusher('bf3efe4f2a538719f902');
       var channel = pusher.subscribe('test_channel');
       var object_counter = {};
-      var flag=1;
-
-
 
       channel.bind('my_event', function(data) {
           var object = data.message;
-          var dup_object = [];
 
           for (var global_key in object_counter) {
               for( var object_key in object ) {
                   if(global_key==object_key) {
                       object_counter[global_key] += object[object_key];
-                      dup_object[object_key] = object[object_key];
                       delete object[object_key];
                   }
               }
@@ -40,35 +35,33 @@
 
           _.extend(object_counter, object);
 
-          var cloudGroup = d3.select("#wordcloud").select("svg")
-                  .attr("width", 600)
-                  .attr("height", 600)
-                  .append("g")
-                  .attr("transform", "translate(150,150)");
-
           var arr = sortObject(object_counter);
-          arr = arr.slice(0,10);
+          arr = arr.slice(0,50);
           var duration = 750; // duration for transitions
           var fill = d3.scale.category20();
           var layout;
-          var wordScale=d3.scale.linear().domain([0,75]).range([10,100]);
+          var wordScale=d3.scale.linear().domain([1,75]).range([8,48]);
 
           console.log(arr);
 
           layout = d3.layout.cloud()
-                      .size([600, 600])
+                      .timeInterval(2)
+                      .size([1000, 1000])
                       .words(arr.map(function(d) {
                           return {text: d.text, size: d.weight };
                       }))
-                      .padding(1)
+                      .padding(5)
                       .rotate(function() { return 0; })
-                      .font("Impact")
                       .fontSize(function(d) { return wordScale(d.size); })
                       .on("end", draw);
               layout.start();
 
               function draw(words) {
-                 var cloudData = cloudGroup
+                  var cloudGroup = d3.select("#wordcloud").select("svg")
+                          .select("g")
+                          .attr("transform", "translate(500,500)");
+
+                  var cloudData = cloudGroup
                           .selectAll("text")
                           .data(words);
 
@@ -79,6 +72,7 @@
                           .style("fill", function(d) { return fill(d.text); })
                           .attr("text-anchor", "middle")
                           .attr("transform", function(d) {
+
                               return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
                           })
                           .text(function(d) { return d.text; })
@@ -87,15 +81,18 @@
 
                   // This with updating existing data
                   cloudData.transition().duration(duration).style("font-size", "0px")
-                          .remove()
                           .style("font-size", "0px")
                           .attr("transform", function(d) {
                               return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
                           })
                           .text(function(d) { return d.text; })
-                          .transition().duration(duration).style("font-size", function(d) { return d.size + "px"; });
-                  }
-
+                          .style("font-size", function(d) { return d.size + "px"; });
+                  cloudData
+                          .exit()
+                          .remove()
+                          .transition().duration(duration).style("font-size", "0px");
+              }
+          d3.layout.cloud().stop();
       });
       function sortObject(obj) {
           var arr = [];
@@ -114,9 +111,14 @@
   </script>
 
 </head>
+<header>
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <h4>Site Resume</h4>
+    </div>
+  </nav>
+</header>
 <body>
-
-    <h3>Site resume</h3>
 
 <%= yield %>
 

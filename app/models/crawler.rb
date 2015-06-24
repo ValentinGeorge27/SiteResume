@@ -14,14 +14,23 @@ class Crawler < ActiveRecord::Base
     page_for_doc.squish!
     page_for_doc.gsub!(/\n\n+/, "\n")
 
-    tokens = %w(ai la te ron asa da cu nu te si va ce cum unde o un ala ul urile a de la cu peste langa sub catre prin contra in pe fara pentru din asemenea asa noastra toate tau eu tu el ea noi voi ei ele mei sau sa acesta asta aceea același cine ce care cât care ceea cine unul unii cineva altul oricare vreunul)
+    tokens = %w(quot javascript ma dupa ci browser ca ai la te ron asa da cu nu te si va ce cum unde o un ala ul urile a de la cu peste langa sub catre prin contra in pe fara pentru din asemenea asa noastra toate tau eu tu el ea noi voi ei ele mei sau sa acesta asta aceea același cine ce care cât care ceea cine unul unii cineva altul oricare vreunul)
 
     page_name_terms = page_name.split('.')
 
     words = page_for_doc.scan(/\w+/)
-    key_words = words.select { |word| !STOP_WORDS_EN.include?(word) and !tokens.include?(word) and !page_name_terms.include?(word) and word.length > 1 }
+
+    unless words.blank?
+      words = words.map(&:downcase)
+    end
+
+    key_words = words.select { |word| !STOP_WORDS_EN.include?(word) }
+    key_words = key_words.select { |word| !tokens.include?(word) }
+    key_words = key_words.select { |word| !page_name_terms.include?(word) }
+    key_words = key_words.select { |word| word.length > 1 }
 
     page_for_doc = key_words.join(' ')
+
 
     if page_for_doc.blank?
       doc = []
