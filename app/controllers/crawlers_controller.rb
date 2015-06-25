@@ -91,6 +91,7 @@ class CrawlersController < ApplicationController
         anemone.on_every_page do |page|
           if page.code.to_i >= 200 && page.code.to_i < 400
             unless links.include? page.url
+              puts page.url
                   doc = Crawler.add_page_to_docs(page,docs, page_name)
                   unless doc.blank?
                     #models = Crawler.update_models(docs, models)
@@ -101,7 +102,6 @@ class CrawlersController < ApplicationController
                     Pusher['test_channel'].trigger('my_event', {
                         message: terms
                     })
-                    #send_data_to_browser
                     terms_sum = Crawler.add_to_terms_sum(terms.to_hash, terms_sum)
                   end
               links << page.url

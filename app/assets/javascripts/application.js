@@ -15,8 +15,6 @@
 //= require turbolinks
 //= require underscore
 //= require jqcloud
-//= require wordcloud2
 //= require d3
 //= require d3.layout.cloud
-//= require jquery.awesomeCloud-0.2
 //= require_tree .
