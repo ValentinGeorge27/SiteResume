@@ -14,7 +14,7 @@ class Crawler < ActiveRecord::Base
     page_for_doc.squish!
     page_for_doc.gsub!(/\n\n+/, "\n")
 
-    tokens = %w( fi ok mi th au li le iti isi sc dar ar nr h2 h1 h3 h4 h5 h6 h7 ap sidebar_widget nivo_caption_wrapper srl ti lu tab ia tr cg al la cei cl ta quot javascript ma dupa ci browser ca ai la te ron asa da cu nu te si va ce cum unde o un ala ul urile a de la cu peste langa sub catre prin contra in pe fara pentru din asemenea asa noastra toate tau eu tu el ea noi voi ei ele mei sau sa acesta asta aceea același cine ce care cât care ceea cine unul unii cineva altul oricare vreunul)
+    tokens = %w(il am oh fi ok tot ts fie span 1px se mi th au li le iti isi sc dar ar nr h2 h1 h3 h4 h5 h6 h7 ap sidebar_widget nivo_caption_wrapper srl ti lu tab ia tr cg al la cei cl ta quot javascript ma dupa ci browser ca ai la te ron asa da cu nu te si va ce cum unde o un ala ul urile a de la cu peste langa sub catre prin contra in pe fara pentru din asemenea asa noastra toate tau eu tu el ea noi voi ei ele mei sau sa acesta asta aceea același cine ce care cât care ceea cine unul unii cineva altul oricare vreunul)
 
     page_name_terms = page_name.split('.')
 

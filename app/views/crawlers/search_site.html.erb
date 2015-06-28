@@ -1,11 +1,12 @@
-<%= form_tag search_site_crawlers_path, method: :post do %>
+<%= form_tag search_site_crawlers_path, method: :post, remote: true do %>
     <%= prompt_text 'Insert Site' %>
     <%= text_field_tag :site_name%>
-
-    <%= submit_tag 'Send', id: 'test' %>
-
+    <%= submit_tag 'Send', id: 'send_post' %>
 <% end %>
-<br><br>
+<br>
+<div id="loading-image"> Asteptam date :) </div>
+<br>
+
 
 <div class="text-cont" id="wordcloud" >
 <svg width="800" height="600">
