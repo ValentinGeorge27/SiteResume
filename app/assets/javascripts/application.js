@@ -17,4 +17,5 @@
 //= require jqcloud
 //= require d3
 //= require d3.layout.cloud
+//= require twitter/bootstrap
 //= require_tree .
