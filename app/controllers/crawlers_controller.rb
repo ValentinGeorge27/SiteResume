@@ -4,6 +4,7 @@ require 'cgi'
 require 'narray'
 require 'tf-idf-similarity'
 require 'matrix'
+require 'objspace'
 
 class CrawlersController < ApplicationController
 
@@ -87,16 +88,9 @@ class CrawlersController < ApplicationController
 
       Anemone.crawl(initial_page.url,:max_page_queue_size => 1000, :obey_robots_txt => true, :delay => 2, :depth_limit=> 5, :skip_query_strings => true, :read_timeout => 10, :crawl_subdomains => true) do |anemone|
 
-        domain = PublicSuffix.parse(URI.parse(URI.encode(initial_page.url.to_s)).host).subdomain.sub!(/^www./,'')
-        puts domain
-        link = 'http://blog.piciorugras.ro/'
-
-        puts PublicSuffix.parse(URI.parse(URI.encode(link.to_s)).host).subdomain.end_with?(domain)
-
         anemone.skip_links_like /\.#{ext.join('|')}$/
         links << initial_page.url
         anemone.on_every_page do |page|
-          puts page.url
           if page.code.to_i >= 200 && page.code.to_i < 400
             unless links.include? page.url
                   doc = Crawler.add_page_to_docs(page,docs, page_name)
@@ -106,9 +100,10 @@ class CrawlersController < ApplicationController
                     terms = Crawler.tf_idf_for_page(doc, docs)
                     terms = terms.sort_by {|k, v| v}.reverse.to_h
                     puts terms
+                    puts ObjectSpace.memsize_of(terms)
 
                     Pusher['test_channel'].trigger('my_event', {
-                        message: terms, url: page.url
+                        message: terms
                     })
                     terms_sum = Crawler.add_to_terms_sum(terms.to_hash, terms_sum)
                   end

@@ -23,7 +23,7 @@
         var object_counter = {};
 
         channel.bind('my_event', function(data) {
-            updateCloud(data)
+            updateCloud(data);
         });
 
         function updateCloud(data){
@@ -45,7 +45,7 @@
             var duration = 750; // duration for transitions
             var fill = d3.scale.category20();
             var layout;
-            var wordScale = d3.scale.linear().domain([0, 1000]).range([8, 120]);
+            var wordScale = d3.scale.linear().domain([0, 500]).range([8, 48]);
 
             console.log(arr);
 
@@ -59,6 +59,7 @@
                     .rotate(function () {
                         return 0;
                     })
+                    .text(function(d) { return d.text; }) // THE SOLUTION
                     .fontSize(function (d) {
                         return wordScale(d.size);
                     })
@@ -72,49 +73,43 @@
 
                 var cloudData = cloudGroup
                         .selectAll("text")
-                        .data(words, function(d) { return d.text; });
+                        .data(words);
 
-                //Entering words
-                cloudData.enter()
-                        .append("text")
+                // This part should deal with (newly) entering data
+                cloudData.enter().append("text")
+                        .style("font-size", "0px")
                         .style("font-family", "Impact")
                         .style("fill", function(d, i) { return fill(i); })
                         .attr("text-anchor", "middle")
-                        .attr('font-size', 1)
-                        .text(function(d) { return d.text; });
-
-                //Entering and existing words
-                cloudData
-                        .transition()
-                        .duration(600)
-                        .style("font-size", function(d) { return wordScale(d.size) + "px"; })
                         .attr("transform", function(d) {
-                            return "translate(" + [d.x, d.y] + ")";
+                            return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
                         })
-                        .style("fill-opacity", 1);
+                        .text(function(d) { return d.text; })
+                        .transition().duration(duration).style("font-size", function(d) { return wordScale(d.size) + "px"; });
 
-                //Exiting words
-                cloudData.exit()
-                        .transition()
-                        .duration(200)
-                        .style('fill-opacity', 1e-6)
-                        .attr('font-size', 1)
-                        .remove();
+                // This with updating existing data
+                cloudData
+                        .transition().duration(duration).style("font-size", "0px")
+                        .remove()
+                        .style("font-size", "0px")
+                        .attr("transform", function(d) {
+                            return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+                        })
+                        .text(function(d) { return d.text; })
+                        .transition().duration(duration).style("font-size", function(d) { return wordScale(d.size) + "px"; });
             }
         }
         function sortObject(obj) {
             var arr = [];
-            for (var prop in obj) {
-                if (obj.hasOwnProperty(prop)) {
-                    arr.push({
-                        'text': prop,
-                        'weight': obj[prop]
-                    });
-                }
-            }
-            arr.sort(function(a, b) { return b.value - a.value; });
+            for (var vehicle in obj)
+                arr.push({
+                    'text':vehicle,
+                    'weight':obj[vehicle]})
+            var sortedObjs = _.sortBy( arr, 'weight').reverse();
+            /*arr = arr.sort(function(a, b) { return b.value - a.value; });*/
+            console.log(sortedObjs);
             //arr.sort(function(a, b) { a.value.toLowerCase().localeCompare(b.value.toLowerCase()); }); //use this to sort as strings
-            return arr; // returns array
+            return sortedObjs; // returns array
         }
     </script>
 
