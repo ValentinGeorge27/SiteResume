@@ -86,7 +86,7 @@ class CrawlersController < ApplicationController
 
         start_time = Time.zone.now
 
-      Anemone.crawl(initial_page.url,:max_page_queue_size => 1000, :obey_robots_txt => true, :delay => 2, :depth_limit=> 5, :skip_query_strings => true, :read_timeout => 10, :crawl_subdomains => true) do |anemone|
+      Anemone.crawl(initial_page.url, :max_page_queue_size => 1000, :obey_robots_txt => true, :delay => 2, :depth_limit=> 5, :skip_query_strings => true, :read_timeout => 20, :crawl_subdomains => true) do |anemone|
 
         anemone.skip_links_like /\.#{ext.join('|')}$/
         links << initial_page.url
@@ -99,11 +99,13 @@ class CrawlersController < ApplicationController
                     #terms = Crawler.tf_idf_for_page_v2(doc, models)
                     terms = Crawler.tf_idf_for_page(doc, docs)
                     terms = terms.sort_by {|k, v| v}.reverse.to_h
+                    puts page.url
                     puts terms
-                    puts ObjectSpace.memsize_of(terms)
+
+                    #dimension = ObjectSpace.memsize_of(terms)
 
                     Pusher['test_channel'].trigger('my_event', {
-                        message: terms
+                        message: terms, url: page.url.to_s
                     })
                     terms_sum = Crawler.add_to_terms_sum(terms.to_hash, terms_sum)
                   end
@@ -112,6 +114,9 @@ class CrawlersController < ApplicationController
           end
         end
       end
+        Pusher['test_channel'].trigger('my_event', {
+                                           finished: true
+                                                 })
        puts terms_sum.sort_by{|k, v| v}.reverse.to_h
       else
         #terms_sum = @crawler.terms.to_h

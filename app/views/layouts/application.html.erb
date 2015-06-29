@@ -9,7 +9,6 @@
 
     <script src="//js.pusher.com/2.2/pusher.min.js"></script>
 
-
     <script>
         // Enable pusher logging - don't include this in production
         Pusher.log = function(message) {
@@ -23,10 +22,16 @@
         var object_counter = {};
 
         channel.bind('my_event', function(data) {
-            updateCloud(data);
+            if(data.message) {
+                updateCloud(data);
+            }
+            if(data.finished){
+                alert('Done');
+            }
         });
 
         function updateCloud(data){
+            var tmp_object = data.message;
             var object = data.message;
 
             for (var global_key in object_counter) {
@@ -39,13 +44,18 @@
             }
 
             _.extend(object_counter, object);
+            var url_obj_values = sortObject(tmp_object);
+            url_obj_values = url_obj_values.slice(0,10);
 
             var arr = sortObject(object_counter);
             arr = arr.slice(0, 100);
+
+            arr = insertUrls(arr, url_obj_values, data.url);
+
             var duration = 750; // duration for transitions
             var fill = d3.scale.category20();
             var layout;
-            var wordScale = d3.scale.linear().domain([0, 500]).range([8, 48]);
+            var wordScale = d3.scale.linear().domain([0, 1000]).range([8, 48]);
 
             console.log(arr);
 
@@ -53,7 +63,7 @@
                     .timeInterval(2)
                     .size([800, 600])
                     .words(arr.map(function (d) {
-                        return {text: d.text, size: d.weight};
+                        return {text: d.text, size: d.weight, url: d.url};
                     }))
                     .padding(5)
                     .rotate(function () {
@@ -77,38 +87,61 @@
 
                 // This part should deal with (newly) entering data
                 cloudData.enter().append("text")
-                        .style("font-size", "0px")
+                        .style('font-size', '0px')
                         .style("font-family", "Impact")
                         .style("fill", function(d, i) { return fill(i); })
                         .attr("text-anchor", "middle")
                         .attr("transform", function(d) {
                             return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
                         })
-                        .text(function(d) { return d.text; })
-                        .transition().duration(duration).style("font-size", function(d) { return wordScale(d.size) + "px"; });
+                        .text(function(d) { return d.text;})
+                        .on("click", function (d, i){
+                            window.open(d.url, "_blank");
+                        })
+                        .transition().duration(duration).style("font-size", function(d) { return (d.size) + "px"; });
 
                 // This with updating existing data
                 cloudData
                         .transition().duration(duration).style("font-size", "0px")
-                        .remove()
-                        .style("font-size", "0px")
+                        .style("fill", function(d, i) { return fill(i); })
                         .attr("transform", function(d) {
                             return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
                         })
                         .text(function(d) { return d.text; })
-                        .transition().duration(duration).style("font-size", function(d) { return wordScale(d.size) + "px"; });
+                        .on("click", function (d, i){
+                            window.open(d.url, "_blank");
+                        })
+                        .transition().duration(duration).style("font-size", function(d) { return (d.size) + "px"; });
+
+                //Exiting words
+                cloudData.exit()
+                        .transition().duration(duration).style("font-size", "0px")
+                        .duration(200)
+                        .style('fill-opacity', 1e-6)
+                        .attr('font-size', 1)
+                        .remove();
             }
+        }
+
+        function insertUrls(arr, url_arr, url){
+            for(var item in arr){
+                for(var url_item in url_arr) {
+                    if(arr[item].text== arr[url_item].text){
+                        arr[item].url = url;
+                    }
+                }
+            }
+            console.log(arr);
+            return arr;
         }
         function sortObject(obj) {
             var arr = [];
-            for (var vehicle in obj)
+            for (var item in obj)
                 arr.push({
-                    'text':vehicle,
-                    'weight':obj[vehicle]})
+                    'text': item,
+                    'weight':obj[item],
+                    'url':''})
             var sortedObjs = _.sortBy( arr, 'weight').reverse();
-            /*arr = arr.sort(function(a, b) { return b.value - a.value; });*/
-            console.log(sortedObjs);
-            //arr.sort(function(a, b) { a.value.toLowerCase().localeCompare(b.value.toLowerCase()); }); //use this to sort as strings
             return sortedObjs; // returns array
         }
     </script>
