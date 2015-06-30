@@ -86,7 +86,7 @@ class CrawlersController < ApplicationController
 
         start_time = Time.zone.now
 
-      Anemone.crawl(initial_page.url, :max_page_queue_size => 1000, :obey_robots_txt => true, :delay => 2, :depth_limit=> 5, :skip_query_strings => true, :read_timeout => 20, :crawl_subdomains => true) do |anemone|
+        Anemone.crawl(initial_page.url, :max_page_queue_size => 1000, :obey_robots_txt => true, :delay => 2, :depth_limit=> 5, :skip_query_strings => true, :read_timeout => 20, :crawl_subdomains => true) do |anemone|
 
         anemone.skip_links_like /\.#{ext.join('|')}$/
         links << initial_page.url
