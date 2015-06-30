@@ -26,7 +26,7 @@
                 updateCloud(data);
             }
             if(data.finished){
-                alert('Done');
+                alert('We have finished the crawling');
             }
         });
 
@@ -92,7 +92,7 @@
                         .style("fill", function(d, i) { return fill(i); })
                         .attr("text-anchor", "middle")
                         .attr("transform", function(d) {
-                            return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+                            return "translate(" + [d.x, d.y] + ")";
                         })
                         .text(function(d) { return d.text;})
                         .on("click", function (d, i){
@@ -103,19 +103,19 @@
                 // This with updating existing data
                 cloudData
                         .transition().duration(duration).style("font-size", "0px")
+                        .transition().duration(duration).style("font-size", function(d) { return (d.size) + "px"; })
                         .style("fill", function(d, i) { return fill(i); })
                         .attr("transform", function(d) {
                             return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
                         })
-                        .text(function(d) { return d.text; })
                         .on("click", function (d, i){
                             window.open(d.url, "_blank");
                         })
-                        .transition().duration(duration).style("font-size", function(d) { return (d.size) + "px"; });
+                        .text(function(d) { return d.text; });
 
                 //Exiting words
                 cloudData.exit()
-                        .transition().duration(duration).style("font-size", "0px")
+                        .transition()
                         .duration(200)
                         .style('fill-opacity', 1e-6)
                         .attr('font-size', 1)
@@ -136,11 +136,16 @@
         }
         function sortObject(obj) {
             var arr = [];
-            for (var item in obj)
+            for (var item in obj) {
                 arr.push({
                     'text': item,
-                    'weight':obj[item],
-                    'url':''})
+                    'weight': obj[item]
+                });
+                var key = 'url';
+                if(!(arr.hasOwnProperty(key))){
+                    arr[key]='';
+                }
+            }
             var sortedObjs = _.sortBy( arr, 'weight').reverse();
             return sortedObjs; // returns array
         }
