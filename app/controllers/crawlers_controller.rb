@@ -86,7 +86,7 @@ class CrawlersController < ApplicationController
 
         start_time = Time.zone.now
 
-        Anemone.crawl(initial_page.url, :max_page_queue_size => 1000, :obey_robots_txt => true, :delay => 5, :depth_limit=> 5, :skip_query_strings => true, :read_timeout => 20, :crawl_subdomains => true) do |anemone|
+        Anemone.crawl(initial_page.url, :max_page_queue_size => 1000, :obey_robots_txt => true, :delay => 5, :depth_limit=> 5, :skip_query_strings => true, :read_timeout => 10, :crawl_subdomains => true) do |anemone|
 
         anemone.skip_links_like /\.#{ext.join('|')}$/
         links << initial_page.url
@@ -103,6 +103,7 @@ class CrawlersController < ApplicationController
                       terms.delete(terms.keys.last)
                     end
                     puts page.url
+                    puts terms
 
                     Pusher['test_channel'].trigger('my_event', {
                         message: terms, url: page.url.to_s
