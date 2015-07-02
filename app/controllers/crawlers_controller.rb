@@ -4,6 +4,7 @@ require 'cgi'
 require 'narray'
 require 'tf-idf-similarity'
 require 'matrix'
+require 'objspace'
 
 class CrawlersController < ApplicationController
 
@@ -85,22 +86,26 @@ class CrawlersController < ApplicationController
 
         start_time = Time.zone.now
 
-      Anemone.crawl(initial_page.url,:max_page_queue_size => 1000, :obey_robots_txt => true, :delay => 2, :depth_limit=> 5, :skip_query_strings => true, :read_timeout => 10, :crawl_subdomains => true) do |anemone|
+        Anemone.crawl(initial_page.url, :max_page_queue_size => 1000, :obey_robots_txt => true, :delay => 5, :depth_limit=> 5, :skip_query_strings => true, :read_timeout => 20, :crawl_subdomains => true) do |anemone|
+
         anemone.skip_links_like /\.#{ext.join('|')}$/
         links << initial_page.url
         anemone.on_every_page do |page|
           if page.code.to_i >= 200 && page.code.to_i < 400
             unless links.include? page.url
-              puts page.url
                   doc = Crawler.add_page_to_docs(page,docs, page_name)
                   unless doc.blank?
                     #models = Crawler.update_models(docs, models)
                     #terms = Crawler.tf_idf_for_page_v2(doc, models)
                     terms = Crawler.tf_idf_for_page(doc, docs)
                     terms = terms.sort_by {|k, v| v}.reverse.to_h
+                    while ObjectSpace.memsize_of(terms) > 9900
+                      terms.delete(terms.keys.last)
+                    end
+                    puts page.url
 
                     Pusher['test_channel'].trigger('my_event', {
-                        message: terms
+                        message: terms, url: page.url.to_s
                     })
                     terms_sum = Crawler.add_to_terms_sum(terms.to_hash, terms_sum)
                   end
@@ -108,10 +113,11 @@ class CrawlersController < ApplicationController
             end
           end
         end
-        end_time = Time.zone.now
-        duration = end_time - start_time
-        #@crawler = Crawler.create(url_name: initial_page.url.to_s, terms: terms_sum, start_time: start_time, end_time: end_time, duration: duration)
       end
+        Pusher['test_channel'].trigger('my_event', {
+                                           finished: true
+                                                 })
+       puts terms_sum.sort_by{|k, v| v}.reverse.to_h
       else
         #terms_sum = @crawler.terms.to_h
       end

@@ -1,9 +1,9 @@
 source 'https://rubygems.org'
-
+ruby '2.1.1'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.2.0'
 
-gem 'bootstrap-sass', '~> 3.2.0'
+
 # Use sqlite3 as the database for Active Record
 gem 'mysql2'
 # Use SCSS for stylesheets
@@ -30,6 +30,8 @@ gem 'anemone', :git => 'git://github.com/ValentinGeorge27/anemone'
 gem 'rspec'
 gem 'fakeweb'
 gem 'redis-rails'
+
+gem 'rails-html-sanitizer'
 
 gem 'htmlentities'
 gem 'loofah'
@@ -62,6 +64,7 @@ gem 'underscore-rails'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
+gem 'twitter-bootstrap-rails', :git => 'git://github.com/seyhunak/twitter-bootstrap-rails.git'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

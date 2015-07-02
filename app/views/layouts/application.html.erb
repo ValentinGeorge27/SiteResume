@@ -1,126 +1,208 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <title>SiteResume</title>
-  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
-  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
-  <%= csrf_meta_tags %>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= content_for?(:title) ? yield(:title) : "SiteResume" %></title>
+    <%= csrf_meta_tags %>
 
-  <script src="//js.pusher.com/2.2/pusher.min.js"></script>
+    <script src="//js.pusher.com/2.2/pusher.min.js"></script>
+
+    <script>
+        // Enable pusher logging - don't include this in production
+        Pusher.log = function(message) {
+            if (window.console && window.console.log) {
+                /*window.console.log(message);*/
+            }
+        };
+
+        var pusher = new Pusher('bf3efe4f2a538719f902');
+        var channel = pusher.subscribe('test_channel');
+        var object_counter = {};
+
+        channel.bind('my_event', function(data) {
+            if(data.message) {
+                updateCloud(data);
+            }
+            if(data.finished){
+                alert('We have finished the crawling');
+            }
+        });
+
+        function updateCloud(data){
+            var tmp_object = data.message;
+            var object = data.message;
+
+            for (var global_key in object_counter) {
+                for (var object_key in object) {
+                    if (global_key == object_key) {
+                        object_counter[global_key] += object[object_key];
+                        delete object[object_key];
+                    }
+                }
+            }
+
+            _.extend(object_counter, object);
+            var url_obj_values = sortObject(tmp_object);
+            url_obj_values = url_obj_values.slice(0,20);
+
+            var arr = sortObject(object_counter);
+            arr = arr.slice(0, 100);
+
+            arr = insertUrls(arr, url_obj_values, data.url);
+
+            var duration = 750; // duration for transitions
+            var fill = d3.scale.category20();
+            var layout;
+            var wordScale = d3.scale.linear().domain([0, 1000]).range([8, 48]);
+
+            console.log(arr);
+
+            layout = d3.layout.cloud()
+                    .timeInterval(2)
+                    .size([800, 600])
+                    .words(arr.map(function (d) {
+                        return {text: d.text, size: d.weight, url: d.url};
+                    }))
+                    .padding(5)
+                    .rotate(function () {
+                        return 0;
+                    })
+                    .text(function(d) { return d.text; }) // THE SOLUTION
+                    .fontSize(function (d) {
+                        return wordScale(d.size);
+                    })
+                    .on("end", draw);
+            layout.start();
+
+            function draw(words) {
+                var cloudGroup = d3.select("#wordcloud").select("svg")
+                        .select("g")
+                        .attr("transform", "translate(400,300)");
+
+                var cloudData = cloudGroup
+                        .selectAll("text")
+                        .data(words);
+
+                // This part should deal with (newly) entering data
+                cloudData.enter().append("text")
+                        .style('font-size', '0px')
+                        .style("fill", function(d, i) { return fill(i); })
+                        .attr("text-anchor", "middle")
+                        .attr("transform", function(d) {
+                            return "translate(" + [d.x, d.y] + ")";
+                        })
+                        .text(function(d) { return d.text;})
+                        .on("hover",function (d,i){
+                            if(!(d.url== "")) {
+
+                            }
+                        })
+                        .on("click", function (d, i){
+                           window.open(d.url, "_blank");
+                        })
+                        .transition().duration(duration).style("font-size", function(d) { return (d.size) + "px"; });
+
+                // This with updating existing data
+                cloudData
+                        .transition().duration(duration).style("font-size", "0px")
+                        .transition().duration(duration).style("font-size", function(d) { return (d.size) + "px"; })
+                        .style("fill", function(d, i) { return fill(i); })
+                        .attr("transform", function(d) {
+                            return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+                        })
+                        .text(function(d) { return d.text; });
+
+                //Exiting words
+                cloudData.exit()
+                        .transition()
+                        .duration(200)
+                        .style('fill-opacity', 1e-6)
+                        .attr('font-size', 1)
+                        .remove();
+            }
+        }
+
+        function insertUrls(arr, url_arr, url){
+            for(var item in arr){
+                for(var url_item in url_arr) {
+                    if(arr[item].text== arr[url_item].text){
+                        arr[item].url = url;
+                    }
+                }
+            }
+            console.log(arr);
+            return arr;
+        }
+        function sortObject(obj) {
+            var arr = [];
+            for (var item in obj) {
+                arr.push({
+                    'text': item,
+                    'weight': obj[item]
+                });
+                var key = 'url';
+                if(!(arr.hasOwnProperty(key))){
+                    arr[key]='';
+                }
+            }
+            var sortedObjs = _.sortBy( arr, 'weight').reverse();
+            return sortedObjs; // returns array
+        }
+    </script>
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.6.1/html5shiv.js" type="text/javascript"></script>
+    <![endif]-->
+
+    <%= stylesheet_link_tag "application", :media => "all" %>
+
+    <!-- For third-generation iPad with high-resolution Retina display: -->
+    <!-- Size should be 144 x 144 pixels -->
+    <%= favicon_link_tag 'apple-touch-icon-144x144-precomposed.png', :rel => 'apple-touch-icon-precomposed', :type => 'image/png', :sizes => '144x144' %>
+
+    <!-- For iPhone with high-resolution Retina display: -->
+    <!-- Size should be 114 x 114 pixels -->
+    <%= favicon_link_tag 'apple-touch-icon-114x114-precomposed.png', :rel => 'apple-touch-icon-precomposed', :type => 'image/png', :sizes => '114x114' %>
+
+    <!-- For first- and second-generation iPad: -->
+    <!-- Size should be 72 x 72 pixels -->
+    <%= favicon_link_tag 'apple-touch-icon-72x72-precomposed.png', :rel => 'apple-touch-icon-precomposed', :type => 'image/png', :sizes => '72x72' %>
+
+    <!-- For non-Retina iPhone, iPod Touch, and Android 2.1+ devices: -->
+    <!-- Size should be 57 x 57 pixels -->
+    <%= favicon_link_tag 'apple-touch-icon-precomposed.png', :rel => 'apple-touch-icon-precomposed', :type => 'image/png' %>
+
+    <!-- For all other devices -->
+    <!-- Size should be 32 x 32 pixels -->
+    <%= favicon_link_tag 'favicon.ico', :rel => 'shortcut icon' %>
+
+    <%= javascript_include_tag "application" %>
 
 
-  <script>
-      // Enable pusher logging - don't include this in production
-      Pusher.log = function(message) {
-          if (window.console && window.console.log) {
-             /*window.console.log(message);*/
-          }
-      };
+  </head>
+  <body>
 
-      var pusher = new Pusher('bf3efe4f2a538719f902');
-      var channel = pusher.subscribe('test_channel');
-      var object_counter = {};
+    <div class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <h3 class="text-center ">SiteResume</h3>
 
-      channel.bind('my_event', function(data) {
-          var object = data.message;
-
-          for (var global_key in object_counter) {
-              for( var object_key in object ) {
-                  if(global_key==object_key) {
-                      object_counter[global_key] += object[object_key];
-                      delete object[object_key];
-                  }
-              }
-          }
-
-          _.extend(object_counter, object);
-
-          var arr = sortObject(object_counter);
-          arr = arr.slice(0,50);
-          var duration = 750; // duration for transitions
-          var fill = d3.scale.category20();
-          var layout;
-          var wordScale=d3.scale.linear().domain([1,75]).range([8,48]);
-
-          console.log(arr);
-
-          layout = d3.layout.cloud()
-                      .timeInterval(2)
-                      .size([1000, 1000])
-                      .words(arr.map(function(d) {
-                          return {text: d.text, size: d.weight };
-                      }))
-                      .padding(5)
-                      .rotate(function() { return 0; })
-                      .fontSize(function(d) { return wordScale(d.size); })
-                      .on("end", draw);
-              layout.start();
-
-              function draw(words) {
-                  var cloudGroup = d3.select("#wordcloud").select("svg")
-                          .select("g")
-                          .attr("transform", "translate(500,500)");
-
-                  var cloudData = cloudGroup
-                          .selectAll("text")
-                          .data(words);
-
-
-                  cloudData.enter().append("text")
-                          .style("font-size", "0px")
-                          .style("font-family", "Impact")
-                          .style("fill", function(d) { return fill(d.text); })
-                          .attr("text-anchor", "middle")
-                          .attr("transform", function(d) {
-
-                              return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
-                          })
-                          .text(function(d) { return d.text; })
-                          .transition().duration(duration).style("font-size", function(d) { return d.size + "px"; });
-
-
-                  // This with updating existing data
-                  cloudData.transition().duration(duration).style("font-size", "0px")
-                          .style("font-size", "0px")
-                          .attr("transform", function(d) {
-                              return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
-                          })
-                          .text(function(d) { return d.text; })
-                          .style("font-size", function(d) { return d.size + "px"; });
-                  cloudData
-                          .exit()
-                          .remove()
-                          .transition().duration(duration).style("font-size", "0px");
-              }
-          d3.layout.cloud().stop();
-      });
-      function sortObject(obj) {
-          var arr = [];
-          for (var prop in obj) {
-              if (obj.hasOwnProperty(prop)) {
-                  arr.push({
-                      'text': prop,
-                      'weight': obj[prop]
-                  });
-              }
-          }
-          arr.sort(function(a, b) { return b.value - a.value; });
-          //arr.sort(function(a, b) { a.value.toLowerCase().localeCompare(b.value.toLowerCase()); }); //use this to sort as strings
-          return arr; // returns array
-      }
-  </script>
-
-</head>
-<header>
-  <nav class="navbar navbar-default navbar-fixed-top">
-    <div class="container">
-      <h4>Site Resume</h4>
+      </div>
     </div>
-  </nav>
-</header>
-<body>
 
-<%= yield %>
+    <div class="container">
+        <div>
+          <%= bootstrap_flash %>
+          <%= yield %>
+        </div>
+    </div> <!-- /container -->
 
-</body>
+  </body>
 </html>

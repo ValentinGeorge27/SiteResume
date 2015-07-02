@@ -1,52 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="DataSourceManagerImpl" format="xml" hash="3100561502">
-    <data-source source="LOCAL" name="Rails SiteResume: development" uuid="f74adf88-435a-4e87-a3ff-4fe78ebc8fb6">
+  <component name="DataSourceManagerImpl" format="xml" hash="2677389047">
+    <data-source source="LOCAL" name="Rails SiteResume: development" uuid="7bdb4195-b679-479c-9eff-56e7afac5772">
       <driver-ref>mysql</driver-ref>
-      <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mysql://127.0.0.1/site_resume_development</jdbc-url>
       <user-name>root</user-name>
       <user-password>dfeddfcfdfc5dfd8dfcddfcfdf98df9d</user-password>
-      <driver-properties>
-        <property name="zeroDateTimeBehavior" value="convertToNull" />
-        <property name="tinyInt1isBit" value="false" />
-        <property name="characterEncoding" value="utf8" />
-        <property name="characterSetResults" value="utf8" />
-        <property name="yearIsDateType" value="false" />
-      </driver-properties>
       <libraries />
     </data-source>
-    <data-source source="LOCAL" name="Rails SiteResume: production" uuid="08170d3f-7eae-4b88-897c-36be61661f31">
+    <data-source source="LOCAL" name="Rails SiteResume: production" uuid="b664f01c-f9b7-4376-a805-bc9a2736ea9c">
       <driver-ref>mysql</driver-ref>
-      <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mysql://127.0.0.1/site_resume_production</jdbc-url>
       <user-name>root</user-name>
       <user-password>dfeddfcfdfc5dfd8dfcddfcfdf98df9d</user-password>
-      <driver-properties>
-        <property name="zeroDateTimeBehavior" value="convertToNull" />
-        <property name="tinyInt1isBit" value="false" />
-        <property name="characterEncoding" value="utf8" />
-        <property name="characterSetResults" value="utf8" />
-        <property name="yearIsDateType" value="false" />
-      </driver-properties>
       <libraries />
     </data-source>
-    <data-source source="LOCAL" name="Rails SiteResume: test" uuid="de3fa4a5-52c5-43c1-9144-7381e657732f">
+    <data-source source="LOCAL" name="Rails SiteResume: test" uuid="5d3213a6-2186-41b2-ae0f-d1d0309022b6">
       <driver-ref>mysql</driver-ref>
-      <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mysql://127.0.0.1/site_resume_test</jdbc-url>
       <user-name>root</user-name>
       <user-password>dfeddfcfdfc5dfd8dfcddfcfdf98df9d</user-password>
-      <driver-properties>
-        <property name="zeroDateTimeBehavior" value="convertToNull" />
-        <property name="tinyInt1isBit" value="false" />
-        <property name="characterEncoding" value="utf8" />
-        <property name="characterSetResults" value="utf8" />
-        <property name="yearIsDateType" value="false" />
-      </driver-properties>
       <libraries />
     </data-source>
   </component>
